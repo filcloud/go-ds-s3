@@ -153,6 +153,9 @@ func (s *S3Bucket) GetSize(k ds.Key) (size int, err error) {
 		}
 		return -1, err
 	}
+	if resp.ContentLength == nil {
+		return 0, nil
+	}
 	return int(*resp.ContentLength), nil
 }
 
@@ -183,7 +186,7 @@ func (s *S3Bucket) Query(q dsq.Query) (dsq.Results, error) {
 
 	resp, err := s.S3.ListObjectsV2(&s3.ListObjectsV2Input{
 		Bucket:  aws.String(s.Bucket),
-		Prefix:  aws.String(s.s3Path(q.Prefix)),
+		Prefix:  aws.String(s.s3Path(q.Prefix)+"/"),
 		MaxKeys: aws.Int64(int64(limit)),
 	})
 	if err != nil {
